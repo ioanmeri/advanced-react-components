@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from "react";
+import React, { useState, useLayoutEffect, useCallback } from "react";
 import mojs from "mo-js";
 import styles from "./index.css";
 
@@ -11,13 +11,16 @@ const initialState = {
 /**
  * Custom Hook for animation
  */
-
 const useClapAnimation = ({ clapEl, countEl, clapTotalEl }) => {
   const [animationTimeline, setAnimationTimeline] = useState(
     () => new mojs.Timeline()
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (!clapEl || !countEl || !clapTotalEl) {
+      return;
+    }
+
     const tlDuration = 300;
     const scaleButton = new mojs.Html({
       el: clapEl,
@@ -34,7 +37,7 @@ const useClapAnimation = ({ clapEl, countEl, clapTotalEl }) => {
       children: {
         shape: "polygon",
         radius: { 6: 0 },
-        stroke: "rgba(211, 54, 0, 0.5)",
+        stroke: "rgba(211,54,0,0.5)",
         strokeWidth: 2,
         angle: 210,
         delay: 30,
@@ -51,7 +54,7 @@ const useClapAnimation = ({ clapEl, countEl, clapTotalEl }) => {
       duration: tlDuration,
       children: {
         shape: "circle",
-        fill: "rgba(149, 165, 166, 0.5)",
+        fill: "rgba(149,165,166,0.5)",
         delay: 30,
         speed: 0.2,
         radius: { 3: 0 },
@@ -78,7 +81,6 @@ const useClapAnimation = ({ clapEl, countEl, clapTotalEl }) => {
       y: { 0: -3 },
     });
 
-    // clapEl
     if (typeof clapEl === "string") {
       const clap = document.getElementById("clap");
       clap.style.transform = "scale(1,1)";
@@ -94,22 +96,18 @@ const useClapAnimation = ({ clapEl, countEl, clapTotalEl }) => {
       circleBurst,
     ]);
     setAnimationTimeline(newAnimationTimeline);
-  }, []);
+  }, [clapEl, countEl, clapTotalEl]);
+
   return animationTimeline;
 };
 
 const MediumClap = () => {
-  const MAXIMUM_USER_CLAP = 12;
+  const MAXIMUM_USER_CLAP = 50;
   const [clapState, setClapState] = useState(initialState);
   const { count, countTotal, isClicked } = clapState;
 
-  /**
-   * {
-   *  clapRef: node
-   *  countRef: node
-   * }
-   */
   const [{ clapRef, clapCountRef, clapTotalRef }, setRefState] = useState({});
+
   const setRef = useCallback((node) => {
     setRefState((prevRefState) => ({
       ...prevRefState,
@@ -157,7 +155,6 @@ const ClapIcon = ({ isClicked }) => {
   return (
     <span>
       <svg
-        id="clapIcon"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="-549 338 100.1 125"
         className={`${styles.icon} ${isClicked && styles.checked}`}
@@ -168,7 +165,6 @@ const ClapIcon = ({ isClicked }) => {
     </span>
   );
 };
-
 const ClapCount = ({ count, setRef }) => {
   return (
     <span ref={setRef} data-refkey="clapCountRef" className={styles.count}>
@@ -188,6 +184,7 @@ const CountTotal = ({ countTotal, setRef }) => {
 /**
  * Usage
  */
+
 const Usage = () => {
   return <MediumClap />;
 };

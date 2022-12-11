@@ -11,3 +11,7 @@ Custom hook are not necessary an advanced pattern, more of a convention.
 - rules of custom hooks
   - only call hooks at the top level
   - only call hooks from react functions
+
+Notes:
+
+- **useEffect** will not be called until the render function has been called. In functional components the render function is pretty much the return statement.
