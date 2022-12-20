@@ -140,7 +140,17 @@ const useClapState = (initialState = INITIAL_STATE) => {
     }));
   }, [count, countTotal]);
 
-  return [clapState, updateClapState];
+  // props collection for 'click'
+  const togglerProps = {
+    onClick: updateClapState,
+  };
+
+  //props collection for 'count'
+  const counterProps = {
+    count,
+  };
+
+  return { clapState, updateClapState, togglerProps, counterProps };
 };
 
 /**
@@ -155,35 +165,6 @@ const useEffectAfterMount = (cb, deps) => {
     componentJustMounted.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
-};
-
-const MediumClap = () => {
-  const [clapState, updateClapState] = useClapState();
-  const { count, countTotal, isClicked } = clapState;
-  const [{ clapRef, clapCountRef, clapTotalRef }, setRef] = useDOMRef();
-
-  const animationTimeline = useClapAnimation({
-    clapEl: clapRef,
-    countEl: clapCountRef,
-    clapTotalEl: clapTotalRef,
-  });
-
-  useEffectAfterMount(() => {
-    animationTimeline.replay();
-  }, [count]);
-
-  return (
-    <button
-      ref={setRef}
-      data-refkey="clapRef"
-      className={styles.clap}
-      onClick={updateClapState}
-    >
-      <ClapIcon isClicked={isClicked} />
-      <ClapCount count={count} setRef={setRef} />
-      <CountTotal countTotal={countTotal} setRef={setRef} />
-    </button>
-  );
 };
 
 /**
@@ -238,7 +219,8 @@ const CountTotal = ({ countTotal, setRef, ...restProps }) => {
  */
 
 const Usage = () => {
-  const [clapState, updateClapState] = useClapState();
+  const { clapState, updateClapState, togglerProps, counterProps } =
+    useClapState();
   const { count, countTotal, isClicked } = clapState;
   const [{ clapRef, clapCountRef, clapTotalRef }, setRef] = useDOMRef();
 
@@ -253,13 +235,9 @@ const Usage = () => {
   }, [count]);
 
   return (
-    <ClapContainer
-      setRef={setRef}
-      onClick={updateClapState}
-      data-refkey="clapRef"
-    >
+    <ClapContainer setRef={setRef} data-refkey="clapRef" {...togglerProps}>
       <ClapIcon isClicked={isClicked} />
-      <ClapCount count={count} setRef={setRef} data-refkey="clapCountRef" />
+      <ClapCount setRef={setRef} data-refkey="clapCountRef" {...counterProps} />
       <CountTotal
         countTotal={countTotal}
         setRef={setRef}
